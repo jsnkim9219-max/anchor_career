@@ -223,7 +223,9 @@ const state = {
   futureEmotions: [],
   shapes: [], nextObjectId: 1, nextOrder: 1, selectedId: null, historyStack: [],
   currentColor: CONFIG.DEFAULT_COLOR, canvasDefaults: null, tone: null,
+  canvasImageDataUrl: null,
   aiImageDataUrl: null,
+  aiSucceeded: false,
   compareNote: '',
   autobio: { fca: '', needed: '' },
   resources: [],
@@ -772,7 +774,8 @@ function renderAiStep() {
   exportCanvas.width = CS; exportCanvas.height = CS;
   renderShapesOnly(exportCanvas.getContext('2d'));
   const canvasDataUrl = exportCanvas.toDataURL('image/png');
-  state.aiImageDataUrl = canvasDataUrl; // AI 연결 실패 시 이 그림을 그대로 씀
+  state.canvasImageDataUrl = canvasDataUrl; // 내가 그린 원본은 항상 그대로 보관
+  state.aiImageDataUrl = canvasDataUrl; // AI 연결 실패 시엔 이 그림을 그대로 씀
 
   const emotionWords = state.futureEmotions.map(e => e.word);
   const colorHex = toneBaseColorHex();
@@ -784,22 +787,27 @@ function renderAiStep() {
   })
     .then(r => (r.ok ? r.json() : Promise.reject(new Error('server error'))))
     .then(data => {
-      if (data.imageUrl) state.aiImageDataUrl = data.imageUrl;
-      showAiResult(true);
+      if (data.imageUrl) { state.aiImageDataUrl = data.imageUrl; state.aiSucceeded = true; }
+      showAiResult();
     })
     .catch(err => {
       console.error('AI 이미지 생성 실패, 캔버스 그림으로 대체합니다.', err);
-      showAiResult(false);
+      state.aiSucceeded = false;
+      showAiResult();
     });
 }
 
-function showAiResult(aiSucceeded) {
+function showAiResult() {
   stageEl.innerHTML = `
-    <div class="card">
+    <div class="card wide">
       <p class="eyebrow">활동 5 · AI로 미래 이미지 만들기</p>
-      <h1>이미지가 완성되었어요</h1>
-      <div class="ai-thumb"><img src="${state.aiImageDataUrl}" alt="완성된 이미지" /></div>
-      ${aiSucceeded ? '' : '<div class="ai-note">🔧 지금은 AI 서버에 연결하지 못해서, 방금 직접 만든 그림을 그대로 보여드려요.</div>'}
+      <h1>내 그림과 AI의 해석, 나란히 볼까요?</h1>
+      <p class="lead">왼쪽은 내가 직접 만든 그림이고, 오른쪽은 같은 감정·색을 가지고 AI가 나름대로 다시 표현한 이미지예요. AI의 해석은 정답이 아니라 하나의 아이디어예요.</p>
+      <div class="compare-row">
+        <div class="compare-col"><div class="compare-thumb"><img src="${state.canvasImageDataUrl}" alt="내가 그린 그림" /></div><div class="compare-label">내가 그린 그림</div></div>
+        <div class="compare-col"><div class="compare-thumb"><img src="${state.aiImageDataUrl}" alt="AI의 해석" /></div><div class="compare-label">AI의 해석</div></div>
+      </div>
+      ${state.aiSucceeded ? '' : '<div class="ai-note">🔧 지금은 AI 서버에 연결하지 못해서, 오른쪽도 내 그림과 같은 이미지로 보여드려요.</div>'}
       <div class="actions-footer">
         <button class="btn btn-ghost" id="back-btn">← 이전</button>
         <button class="btn btn-primary" id="next-btn">다음: 비교하기 →</button>
