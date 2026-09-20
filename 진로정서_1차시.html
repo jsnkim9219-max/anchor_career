@@ -743,11 +743,14 @@ function renderAiStep() {
 
   const emotionWords = state.emotions.map(e => e.word);
   const colorHex = toneBaseColorHex();
+  const avgIntensity = state.emotions.length
+    ? state.emotions.reduce((sum, e) => sum + e.intensity, 0) / state.emotions.length
+    : null;
 
   fetch(AI_ENDPOINT, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ canvasImage: canvasDataUrl, emotionWords, colorHex }),
+    body: JSON.stringify({ canvasImage: canvasDataUrl, emotionWords, colorHex, avgIntensity }),
   })
     .then(r => (r.ok ? r.json() : Promise.reject(new Error('server error'))))
     .then(data => {
