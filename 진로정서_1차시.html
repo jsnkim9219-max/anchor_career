@@ -1,0 +1,984 @@
+<title>지금 나의 진로마음 알아보기</title>
+<style>
+  :root {
+    --bg: #F6F7F7; --surface: #FFFFFF; --surface-2: #F1F2F2; --ink: #20232A;
+    --ink-soft: #62666E; --ink-faint: #9AA0A6; --line: #E1E4E6; --line-strong: #CBD0D4;
+    --accent: #45586B; --accent-ink: #FFFFFF; --accent-soft: #E8EDF1; --accent-soft-line: #C3D0DA;
+    --danger: #9C4A3D; --danger-soft: #F4E5E1;
+    --radius-s: 6px; --radius-m: 10px; --radius-l: 16px;
+    --shadow-1: 0 1px 2px rgba(32,35,42,0.07), 0 1px 1px rgba(32,35,42,0.04);
+    --shadow-2: 0 10px 28px rgba(32,35,42,0.10);
+    --font-ui: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Segoe UI", "Malgun Gothic", sans-serif;
+    --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #16181B; --surface: #1D2024; --surface-2: #23262B; --ink: #E9EBED;
+      --ink-soft: #9BA1A8; --ink-faint: #6B7178; --line: #32363B; --line-strong: #43484E;
+      --accent: #7E96AC; --accent-ink: #12151A; --accent-soft: #232B33; --accent-soft-line: #34424C;
+      --danger: #D98A7B; --danger-soft: #3A2620;
+      --shadow-1: 0 1px 2px rgba(0,0,0,0.35), 0 1px 1px rgba(0,0,0,0.25);
+      --shadow-2: 0 10px 28px rgba(0,0,0,0.45);
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #16181B; --surface: #1D2024; --surface-2: #23262B; --ink: #E9EBED;
+    --ink-soft: #9BA1A8; --ink-faint: #6B7178; --line: #32363B; --line-strong: #43484E;
+    --accent: #7E96AC; --accent-ink: #12151A; --accent-soft: #232B33; --accent-soft-line: #34424C;
+    --danger: #D98A7B; --danger-soft: #3A2620;
+  }
+  :root[data-theme="light"] {
+    --bg: #F6F7F7; --surface: #FFFFFF; --surface-2: #F1F2F2; --ink: #20232A;
+    --ink-soft: #62666E; --ink-faint: #9AA0A6; --line: #E1E4E6; --line-strong: #CBD0D4;
+    --accent: #45586B; --accent-ink: #FFFFFF; --accent-soft: #E8EDF1; --accent-soft-line: #C3D0DA;
+    --danger: #9C4A3D; --danger-soft: #F4E5E1;
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--font-ui); font-size: 15px; line-height: 1.6; -webkit-font-smoothing: antialiased; }
+  button, input, textarea { font-family: inherit; font-size: inherit; color: inherit; }
+  button:focus-visible, input:focus-visible, textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  .app-shell { min-height: 100%; display: flex; flex-direction: column; }
+  .topbar { border-bottom: 1px solid var(--line); background: var(--surface); position: sticky; top: 0; z-index: 10; }
+  .topbar-inner { max-width: 980px; margin: 0 auto; padding: 14px 20px; display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+  .brand-name { font-weight: 700; font-size: 14px; color: var(--ink); }
+  .step-tag { font-size: 12.5px; color: var(--ink-soft); font-family: var(--font-mono); }
+
+  .stage { flex: 1; display: flex; justify-content: center; padding: 40px 20px 64px; }
+  .card { width: 100%; max-width: 640px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-l); box-shadow: var(--shadow-1); padding: 36px 40px; }
+  .card.wide { max-width: 900px; }
+
+  .eyebrow { font-size: 12px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--accent); margin: 0 0 8px; }
+  h1 { font-size: 22px; font-weight: 700; margin: 0 0 6px; letter-spacing: -0.01em; text-wrap: balance; }
+  h2 { font-size: 16px; font-weight: 700; margin: 0 0 4px; }
+  p.lead { color: var(--ink-soft); margin: 0 0 22px; max-width: 62ch; }
+  .field { margin-bottom: 20px; }
+  .field label { display: block; font-size: 13px; font-weight: 600; color: var(--ink-soft); margin-bottom: 8px; }
+  .field input[type="text"], .field textarea {
+    width: 100%; border: 1px solid var(--line-strong); border-radius: var(--radius-s);
+    padding: 11px 13px; background: var(--surface); color: var(--ink); font-size: 14px;
+  }
+  .field textarea { resize: vertical; min-height: 64px; }
+  .error { font-size: 12.5px; color: var(--danger); margin-top: 6px; }
+
+  .btn { appearance: none; border: 1px solid var(--line-strong); background: var(--surface); color: var(--ink); padding: 10px 18px; border-radius: var(--radius-s); cursor: pointer; font-weight: 600; font-size: 14px; transition: background .12s, border-color .12s, opacity .12s, transform .06s; }
+  .btn:hover { border-color: var(--ink-faint); }
+  .btn:active { transform: translateY(1px); }
+  .btn:disabled { opacity: .4; cursor: not-allowed; }
+  .btn-primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+  .btn-primary:hover { opacity: .92; }
+  .btn-ghost { background: transparent; border-color: transparent; color: var(--ink-soft); }
+  .btn-ghost:hover { background: var(--surface-2); color: var(--ink); }
+  .btn-small { padding: 7px 12px; font-size: 12.5px; }
+  .btn-row { display: flex; gap: 10px; flex-wrap: wrap; }
+  .actions-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 26px; padding-top: 18px; border-top: 1px solid var(--line); }
+
+  .chip-row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 18px; }
+  .chip { padding: 8px 14px; border: 1px solid var(--line-strong); border-radius: 100px; background: var(--surface); cursor: pointer; font-size: 13px; color: var(--ink-soft); }
+  .chip:hover { border-color: var(--accent); color: var(--ink); }
+
+  .emo-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 8px; }
+  .emo-btn { padding: 14px 10px; border: 1px solid var(--line-strong); border-radius: var(--radius-s); background: var(--surface); cursor: pointer; font-weight: 600; font-size: 14px; text-align: center; }
+  .emo-btn:hover:not(:disabled) { border-color: var(--accent); }
+  .emo-btn.selected { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+  .emo-btn:disabled { opacity: .35; cursor: not-allowed; }
+  .emo-count { font-size: 12.5px; color: var(--ink-faint); margin-bottom: 18px; }
+
+  .intensity-list { display: flex; flex-direction: column; gap: 14px; margin: 18px 0 22px; }
+  .intensity-row { background: var(--surface-2); border: 1px solid var(--line); border-radius: var(--radius-m); padding: 14px 16px; }
+  .intensity-row .word { font-weight: 700; font-size: 14px; margin-bottom: 10px; }
+  .intensity-scale { display: flex; gap: 6px; }
+  .intensity-btn { flex: 1; padding: 9px 0; text-align: center; border: 1px solid var(--line-strong); border-radius: var(--radius-s); background: var(--surface); cursor: pointer; font-family: var(--font-mono); font-weight: 600; }
+  .intensity-btn.active { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+
+  .tone-layout { display: flex; gap: 36px; align-items: flex-start; margin-bottom: 8px; flex-wrap: wrap; }
+  .wheel-wrap { position: relative; width: 220px; height: 220px; flex-shrink: 0; }
+  #hue-wheel { touch-action: none; cursor: pointer; display: block; }
+  .wheel-swatch { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 60px; height: 60px; border-radius: 50%; border: 1px solid var(--line-strong); box-shadow: var(--shadow-1); pointer-events: none; }
+  .tone-hex { text-align: center; font-family: var(--font-mono); font-size: 12px; color: var(--ink-soft); margin-top: 12px; }
+  .tone-sliders { flex: 1; min-width: 220px; padding-top: 4px; }
+  .slider-field { margin-bottom: 14px; }
+  .slider-field .row-label { display: flex; justify-content: space-between; font-size: 12.5px; color: var(--ink-soft); margin-bottom: 6px; }
+  input[type="range"] { width: 100%; accent-color: var(--accent); }
+
+  .workspace { display: grid; grid-template-columns: 500px 260px; gap: 28px; align-items: start; }
+  .stage-wrap { display: flex; flex-direction: column; gap: 10px; }
+  .canvas-frame { width: 500px; height: 500px; border-radius: var(--radius-m); border: 1px solid var(--line-strong); box-shadow: var(--shadow-2); overflow: hidden; background: #fff; touch-action: none; }
+  #paint-canvas { display: block; width: 500px; height: 500px; cursor: default; }
+  .canvas-caption { font-size: 12.5px; color: var(--ink-faint); }
+  .rail { display: flex; flex-direction: column; gap: 18px; }
+  .rail-card { background: var(--surface-2); border: 1px solid var(--line); border-radius: var(--radius-m); padding: 16px; }
+  .rail-title { font-size: 11.5px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: var(--ink-faint); margin: 0 0 12px; }
+  .color-row { display: flex; align-items: center; gap: 12px; }
+  .color-row input[type="color"] { width: 44px; height: 44px; border: 1px solid var(--line-strong); border-radius: var(--radius-s); padding: 2px; background: var(--surface); cursor: pointer; }
+  .color-hex { font-family: var(--font-mono); font-size: 13px; color: var(--ink-soft); }
+  .shape-btn-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+  .shape-btn { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 10px 4px; border: 1px solid var(--line-strong); border-radius: var(--radius-s); background: var(--surface); cursor: pointer; font-size: 11px; color: var(--ink-soft); }
+  .shape-btn:hover { border-color: var(--accent); color: var(--ink); }
+  .selected-empty { font-size: 12.5px; color: var(--ink-faint); padding: 6px 0; }
+  .selected-meta { font-size: 11.5px; color: var(--ink-faint); font-family: var(--font-mono); margin-bottom: 12px; }
+
+  .ai-loading { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; padding: 60px 0; }
+  .ai-spinner { width: 40px; height: 40px; border-radius: 50%; border: 3px solid var(--line); border-top-color: var(--accent); animation: spin 0.9s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .ai-note { background: var(--accent-soft); border: 1px solid var(--accent-soft-line); border-radius: var(--radius-m); padding: 12px 16px; font-size: 12.5px; color: var(--ink-soft); margin-top: 18px; }
+  .ai-thumb { width: 320px; height: 320px; border-radius: var(--radius-m); border: 1px solid var(--line-strong); overflow: hidden; box-shadow: var(--shadow-2); margin: 0 auto 20px; }
+  .ai-thumb img { width: 100%; height: 100%; display: block; }
+
+  .worry-list { display: flex; flex-direction: column; gap: 10px; margin: 18px 0 8px; }
+  .worry-card { display: flex; align-items: flex-start; gap: 12px; padding: 14px 16px; border: 1px solid var(--line-strong); border-radius: var(--radius-m); background: var(--surface); cursor: pointer; text-align: left; }
+  .worry-card:hover { border-color: var(--accent); }
+  .worry-card.selected { background: var(--accent-soft); border-color: var(--accent); }
+  .worry-card .label { font-weight: 700; font-size: 14px; margin-bottom: 4px; }
+  .worry-card .desc { font-size: 13px; color: var(--ink-soft); }
+
+  .profile-box { background: var(--surface-2); border: 1px solid var(--line); border-radius: var(--radius-m); padding: 20px 22px; margin-bottom: 22px; }
+  .profile-row { display: flex; gap: 14px; padding: 10px 0; border-bottom: 1px solid var(--line); }
+  .profile-row:last-child { border-bottom: none; }
+  .profile-row .k { flex: 0 0 130px; font-size: 12.5px; color: var(--ink-faint); font-weight: 600; }
+  .profile-row .v { flex: 1; font-size: 14px; }
+  .thumb-inline { width: 60px; height: 60px; border-radius: var(--radius-s); border: 1px solid var(--line-strong); flex-shrink: 0; overflow: hidden; }
+  .thumb-inline img { width: 100%; height: 100%; display: block; }
+
+  .info-block { background: var(--accent-soft); border: 1px solid var(--accent-soft-line); border-radius: var(--radius-m); padding: 18px 20px; margin-bottom: 8px; }
+  .info-block p { margin: 0 0 8px; font-size: 14px; }
+  .info-block p:last-child { margin-bottom: 0; }
+
+  .footnote { text-align: center; font-size: 12px; color: var(--ink-faint); padding: 18px 20px 28px; }
+</style>
+
+<div class="app-shell">
+  <header class="topbar">
+    <div class="topbar-inner">
+      <span class="brand-name">지금 나의 진로마음 알아보기 · 1차시</span>
+      <span class="step-tag" id="progress"></span>
+    </div>
+  </header>
+  <main class="stage" id="stage"></main>
+  <div class="footnote">AI 기반 색채 표현을 활용한 진로정서 이해 및 진로성장 프로그램 · 1차시 프로토타입</div>
+</div>
+
+<script>
+/* =========================================================================
+   설정
+   ========================================================================= */
+const CONFIG = {
+  CANVAS_SIZE: 500,
+  // 기초연구(대학생 대상)에서 쓰는 한국판 mDES 20문항(이호준·이희경, 2025)의 어휘를 그대로 가져와
+  // 진로 맥락에 맞게 10개로 추렸습니다. factor는 향후 데이터 연동 시 참고용(표시하지 않음).
+  EMOTION_WORDS: [
+    { word: '기대하다', factor: 'positive' },
+    { word: '관심있다', factor: 'positive' },
+    { word: '기쁘다', factor: 'positive' },
+    { word: '자신감', factor: 'positive' },
+    { word: '평온하다', factor: 'positive' },
+    { word: '당황하다', factor: 'intra' },
+    { word: '죄책감', factor: 'intra' },
+    { word: '슬프다', factor: 'intra' },
+    { word: '두렵다', factor: 'intra' },
+    { word: '긴장하다', factor: 'intra' },
+  ],
+  MAX_EMOTIONS: 3,
+  SCENE_EXAMPLES: [
+    '내가 무엇을 좋아하는지 모르겠다.',
+    '어떤 고등학교를 선택해야 할지 고민된다.',
+    '하고 싶은 일이 있지만 내가 잘할 수 있을지 걱정된다.',
+    '부모님이 원하는 진로와 내가 원하는 것이 다르다.',
+    '진로를 생각하면 그냥 막막하다.',
+    '아직 진로에 대해 생각하고 싶지 않다.',
+  ],
+  // 한국형 진로장벽검사·진로결정자기효능감척도(CDMSES)가 공통으로 다루는 영역(자기명확성·정보·
+  // 우유부단성·자신감·중요한 타인과의 갈등·문제해결/실천)을 참고해 6개 범주로 구성했습니다.
+  WORRY_CATEGORIES: [
+    { id: 'self', label: '자기이해', desc: '내가 무엇을 좋아하고 잘하는지, 어떤 사람인지 아직 잘 모르겠다.' },
+    { id: 'info', label: '진로정보', desc: '어떤 진로나 직업이 있는지, 무엇을 준비해야 하는지 정보가 부족하다.' },
+    { id: 'choice', label: '선택', desc: '관심 있는 것이 여러 가지라 무엇을 선택해야 할지 결정하기 어렵다.' },
+    { id: 'confidence', label: '자신감', desc: '잘 해낼 수 있을지 자신이 없고, 실패할까봐 걱정된다.' },
+    { id: 'expectation', label: '주변의 기대', desc: '부모님이나 주변 사람이 원하는 것과 내가 원하는 것이 다르게 느껴진다.' },
+    { id: 'action', label: '실천', desc: '무엇부터 시작해야 할지 몰라 행동으로 옮기기 어렵다.' },
+  ],
+  MAX_WORRIES: 2,
+  DEFAULT_COLOR: '#8A8F98',
+};
+const CS = CONFIG.CANVAS_SIZE;
+
+/* =========================================================================
+   상태
+   ========================================================================= */
+const state = {
+  step: 'intro',
+  scene: '',
+  sceneChoice: null, // 'example' | 'other' | null
+  sceneOtherText: '',
+  emotions: [],
+  shapes: [], nextObjectId: 1, nextOrder: 1, selectedId: null, historyStack: [],
+  currentColor: CONFIG.DEFAULT_COLOR, canvasDefaults: null, tone: null,
+  aiImageDataUrl: null,
+  meaning: { title: '', awareness: '', expression: '', granularity: '', meaning: '', selfNow: '' },
+  worries: [],
+  profile: { linkedEmotion: '', oneLineSelf: '' },
+};
+
+/* =========================================================================
+   캔버스 엔진 (연구용 도구와 동일한 방식 — 색상환·형태 배치·부드러운 색면 렌더링)
+   ========================================================================= */
+let ctx = null;
+let canvasKeyHandler = null;
+let colorGestureOpen = false;
+let sliderGestureOpen = false;
+
+function generateShapePoints(type) {
+  if (type === 'ellipse') return null;
+  const n = type === 'angular' ? (5 + Math.floor(Math.random() * 3)) : (11 + Math.floor(Math.random() * 4));
+  const pts = [];
+  for (let i = 0; i < n; i++) {
+    const angle = (i / n) * Math.PI * 2 + (Math.random() * 0.15 - 0.075);
+    const r = type === 'angular' ? (0.55 + Math.random() * 0.45) : (0.5 + Math.random() * 0.5);
+    pts.push({ angle, r });
+  }
+  return pts;
+}
+function traceShapePath(c, shape) {
+  c.save();
+  c.translate(shape.x, shape.y);
+  c.rotate(shape.rotation * Math.PI / 180);
+  c.beginPath();
+  const w = shape.width / 2, h = shape.height / 2;
+  if (shape.type === 'ellipse') {
+    c.ellipse(0, 0, Math.max(w, 0.01), Math.max(h, 0.01), 0, 0, Math.PI * 2);
+  } else if (shape.type === 'angular') {
+    shape.points.forEach((p, i) => {
+      const px = Math.cos(p.angle) * p.r * w, py = Math.sin(p.angle) * p.r * h;
+      if (i === 0) c.moveTo(px, py); else c.lineTo(px, py);
+    });
+    c.closePath();
+  } else {
+    const pts = shape.points.map(p => ({ x: Math.cos(p.angle) * p.r * w, y: Math.sin(p.angle) * p.r * h }));
+    const n = pts.length;
+    c.moveTo((pts[0].x + pts[n - 1].x) / 2, (pts[0].y + pts[n - 1].y) / 2);
+    for (let i = 0; i < n; i++) {
+      const cur = pts[i], next = pts[(i + 1) % n];
+      c.quadraticCurveTo(cur.x, cur.y, (cur.x + next.x) / 2, (cur.y + next.y) / 2);
+    }
+    c.closePath();
+  }
+  c.restore();
+}
+function renderShapesOnly(c) {
+  c.clearRect(0, 0, CS, CS);
+  c.fillStyle = '#ffffff';
+  c.fillRect(0, 0, CS, CS);
+  const sorted = [...state.shapes].sort((a, b) => a.order - b.order);
+  sorted.forEach(shape => {
+    traceShapePath(c, shape);
+    c.save();
+    const blurPx = Math.max(3, Math.min(18, Math.min(shape.width, shape.height) * 0.06));
+    c.filter = `blur(${blurPx}px)`;
+    c.globalCompositeOperation = 'multiply';
+    c.fillStyle = shape.colorHex;
+    c.globalAlpha = shape.opacity;
+    c.fill();
+    c.restore();
+  });
+}
+function renderCanvas() {
+  if (!ctx) return;
+  renderShapesOnly(ctx);
+  if (state.selectedId != null) {
+    const shape = state.shapes.find(s => s.id === state.selectedId);
+    if (shape) {
+      ctx.save();
+      ctx.translate(shape.x, shape.y);
+      ctx.rotate(shape.rotation * Math.PI / 180);
+      ctx.strokeStyle = '#45586B';
+      ctx.lineWidth = 1.5;
+      ctx.setLineDash([5, 4]);
+      ctx.strokeRect(-shape.width / 2, -shape.height / 2, shape.width, shape.height);
+      ctx.restore();
+    }
+  }
+}
+function pushHistory() {
+  state.historyStack.push(JSON.parse(JSON.stringify(state.shapes)));
+  if (state.historyStack.length > 60) state.historyStack.shift();
+}
+function undo() {
+  if (state.historyStack.length === 0) return;
+  state.shapes = state.historyStack.pop();
+  state.selectedId = null;
+  refreshCanvasUI();
+}
+function addShape(type) {
+  pushHistory();
+  const size = (state.canvasDefaults && state.canvasDefaults.size) || 140;
+  const jitterRange = (state.canvasDefaults && state.canvasDefaults.jitter) || 30;
+  const jitter = () => Math.random() * jitterRange * 2 - jitterRange;
+  const shape = {
+    id: state.nextObjectId++, order: state.nextOrder++, type,
+    x: CS / 2 + jitter(), y: CS / 2 + jitter(), width: size, height: size,
+    rotation: 0, opacity: 1, colorHex: state.currentColor, points: generateShapePoints(type),
+  };
+  state.shapes.push(shape);
+  state.selectedId = shape.id;
+  refreshCanvasUI();
+}
+function deleteSelected() {
+  if (state.selectedId == null) return;
+  pushHistory();
+  state.shapes = state.shapes.filter(s => s.id !== state.selectedId);
+  state.selectedId = null;
+  refreshCanvasUI();
+}
+function hitTest(mx, my) {
+  const sorted = [...state.shapes].sort((a, b) => b.order - a.order);
+  for (const shape of sorted) {
+    const dx = mx - shape.x, dy = my - shape.y;
+    const rad = -shape.rotation * Math.PI / 180;
+    const lx = dx * Math.cos(rad) - dy * Math.sin(rad);
+    const ly = dx * Math.sin(rad) + dy * Math.cos(rad);
+    if (Math.abs(lx) <= shape.width / 2 && Math.abs(ly) <= shape.height / 2) return shape;
+  }
+  return null;
+}
+function hexToRgb(hex) { const m = hex.replace('#', ''); const v = parseInt(m, 16); return { r: (v >> 16) & 255, g: (v >> 8) & 255, b: v & 255 }; }
+function hslToRgb(h, s, l) {
+  h = ((h % 360) + 360) % 360; s = Math.max(0, Math.min(1, s)); l = Math.max(0, Math.min(1, l));
+  const c = (1 - Math.abs(2 * l - 1)) * s;
+  const x = c * (1 - Math.abs((h / 60) % 2 - 1));
+  const m = l - c / 2;
+  let r = 0, g = 0, b = 0;
+  if (h < 60) [r, g, b] = [c, x, 0]; else if (h < 120) [r, g, b] = [x, c, 0]; else if (h < 180) [r, g, b] = [0, c, x];
+  else if (h < 240) [r, g, b] = [0, x, c]; else if (h < 300) [r, g, b] = [x, 0, c]; else [r, g, b] = [c, 0, x];
+  return [Math.round((r + m) * 255), Math.round((g + m) * 255), Math.round((b + m) * 255)];
+}
+function rgbToHex(r, g, b) { return '#' + [r, g, b].map(v => v.toString(16).padStart(2, '0')).join(''); }
+function toneBaseColorHex() {
+  const [r, g, b] = hslToRgb(state.tone.hue, state.tone.saturation / 100, state.tone.brightness / 100);
+  return rgbToHex(r, g, b);
+}
+function hueName(deg) {
+  const names = ['빨강', '주황', '노랑', '연두', '초록', '청록', '하늘', '파랑', '남색', '보라', '자주', '분홍'];
+  return names[Math.floor((((deg % 360) + 360) % 360) / 30) % 12];
+}
+
+/* =========================================================================
+   화면 흐름
+   ========================================================================= */
+const stageEl = document.getElementById('stage');
+const progressEl = document.getElementById('progress');
+const STEP_ORDER = ['intro', 'scene', 'emotion', 'tone', 'canvas', 'ai', 'meaning', 'worries', 'profile', 'share', 'done'];
+function updateProgress() {
+  const i = STEP_ORDER.indexOf(state.step);
+  progressEl.textContent = i >= 0 ? `${i + 1} / ${STEP_ORDER.length}` : '';
+}
+function escapeHtml(s) { return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
+function goto(step) { state.step = step; render(); }
+function render() {
+  updateProgress();
+  if (canvasKeyHandler) { window.removeEventListener('keydown', canvasKeyHandler); canvasKeyHandler = null; }
+  ctx = null;
+  ({
+    intro: renderIntroStep, scene: renderSceneStep, emotion: renderEmotionStep, tone: renderToneStep,
+    canvas: renderCanvasStep, ai: renderAiStep, meaning: renderMeaningStep, worries: renderWorriesStep,
+    profile: renderProfileStep, share: renderShareStep, done: renderDoneStep,
+  })[state.step]();
+}
+
+/* ---- 0. 시작 ---- */
+function renderIntroStep() {
+  stageEl.innerHTML = `
+    <div class="card">
+      <p class="eyebrow">1차시 · 지금 나의 진로마음 알아보기</p>
+      <h1>오늘은 이런 활동을 해볼 거예요</h1>
+      <p class="lead">정답을 찾는 시간이 아니라, 지금 내 마음을 있는 그대로 알아차리고 표현해보는 시간입니다.</p>
+      <div class="info-block">
+        <p>✓ 요즘 떠오르는 진로 장면 하나를 떠올려봐요</p>
+        <p>✓ 그때 느끼는 감정을 찾아보고, 색과 형태로 표현해요</p>
+        <p>✓ AI가 다듬어준 이미지를 보며 그 마음에 이름을 붙여요</p>
+        <p>✓ 이 마음이 어떤 고민과 연결되어 있는지 살펴봐요</p>
+      </div>
+      <div class="actions-footer">
+        <span></span>
+        <button class="btn btn-primary" id="next-btn">시작하기 →</button>
+      </div>
+    </div>`;
+  document.getElementById('next-btn').addEventListener('click', () => goto('scene'));
+}
+
+/* ---- 1. 장면 떠올리기 ---- */
+function renderSceneStep() {
+  stageEl.innerHTML = `
+    <div class="card">
+      <p class="eyebrow">활동 1 · 진로와 관련된 한 장면 떠올리기</p>
+      <h1>요즘 자주 떠오르는 진로 장면이 있나요?</h1>
+      <p class="lead">진로는 직업을 정하는 것만이 아니라, 흥미·강점·진학·공부·미래·부모님의 기대 등 다양한 고민을 포함해요. 가장 가까운 것을 골라보고, 없다면 직접 적어도 좋아요.</p>
+      <div class="emo-grid" id="scene-options" style="grid-template-columns: 1fr;"></div>
+      <div class="field" id="scene-other-field" style="display:none;">
+        <label for="scene-input">직접 적어보기</label>
+        <textarea id="scene-input" placeholder="예: 진로를 생각하면 그냥 막막하다.">${escapeHtml(state.sceneOtherText)}</textarea>
+      </div>
+      <div class="error" id="scene-error" style="display:none;"></div>
+      <div class="actions-footer">
+        <button class="btn btn-ghost" id="back-btn">← 이전</button>
+        <button class="btn btn-primary" id="next-btn">다음 →</button>
+      </div>
+    </div>`;
+  const optionsEl = document.getElementById('scene-options');
+  const options = [...CONFIG.SCENE_EXAMPLES, '기타 (직접 입력)'];
+  options.forEach((label, idx) => {
+    const isOther = idx === options.length - 1;
+    const b = document.createElement('button');
+    b.type = 'button'; b.className = 'emo-btn'; b.style.textAlign = 'left'; b.textContent = label;
+    const isSelected = isOther ? state.sceneChoice === 'other' : (state.sceneChoice === 'example' && state.scene === label);
+    if (isSelected) b.classList.add('selected');
+    b.addEventListener('click', () => {
+      if (isOther) {
+        state.sceneChoice = 'other';
+        state.scene = '';
+      } else {
+        state.sceneChoice = 'example';
+        state.scene = label;
+      }
+      renderSceneStep();
+      if (isOther) document.getElementById('scene-input').focus();
+    });
+    optionsEl.appendChild(b);
+  });
+  const otherField = document.getElementById('scene-other-field');
+  if (state.sceneChoice === 'other') otherField.style.display = 'block';
+  document.getElementById('back-btn').addEventListener('click', () => goto('intro'));
+  document.getElementById('next-btn').addEventListener('click', () => {
+    const err = document.getElementById('scene-error');
+    if (state.sceneChoice === 'other') {
+      const val = document.getElementById('scene-input').value.trim();
+      if (!val) { err.textContent = '장면을 적어 주세요.'; err.style.display = 'block'; return; }
+      state.sceneOtherText = val;
+      state.scene = val;
+    } else if (state.sceneChoice !== 'example' || !state.scene) {
+      err.textContent = '하나를 골라 주세요.';
+      err.style.display = 'block';
+      return;
+    }
+    goto('emotion');
+  });
+}
+
+/* ---- 2. 감정 찾기 ---- */
+function renderEmotionStep() {
+  stageEl.innerHTML = `
+    <div class="card">
+      <p class="eyebrow">활동 2 · 지금 나의 진로감정 찾기</p>
+      <h1>그 장면을 떠올리면 어떤 마음이 드나요?</h1>
+      <p class="lead">아래에서 지금 느껴지는 감정을 1~3개 골라 주세요. 고른 감정마다 얼마나 크게 느껴지는지도 표시해요.</p>
+      <div class="emo-grid" id="emo-grid"></div>
+      <div class="emo-count" id="emo-count"></div>
+      <div class="intensity-list" id="intensity-list"></div>
+      <div class="error" id="emotion-error" style="display:none;"></div>
+      <div class="actions-footer">
+        <button class="btn btn-ghost" id="back-btn">← 이전</button>
+        <button class="btn btn-primary" id="next-btn">다음 →</button>
+      </div>
+    </div>`;
+  const grid = document.getElementById('emo-grid');
+  CONFIG.EMOTION_WORDS.forEach(({ word }) => {
+    const b = document.createElement('button');
+    b.className = 'emo-btn'; b.type = 'button'; b.textContent = word;
+    if (state.emotions.some(e => e.word === word)) b.classList.add('selected');
+    b.addEventListener('click', () => {
+      const idx = state.emotions.findIndex(e => e.word === word);
+      if (idx >= 0) {
+        state.emotions.splice(idx, 1);
+      } else {
+        if (state.emotions.length >= CONFIG.MAX_EMOTIONS) return;
+        state.emotions.push({ word, intensity: null });
+      }
+      renderEmotionSelections();
+    });
+    grid.appendChild(b);
+  });
+  document.getElementById('back-btn').addEventListener('click', () => goto('scene'));
+  document.getElementById('next-btn').addEventListener('click', () => {
+    const err = document.getElementById('emotion-error');
+    if (state.emotions.length === 0) { err.textContent = '감정을 1개 이상 골라 주세요.'; err.style.display = 'block'; return; }
+    if (state.emotions.some(e => e.intensity == null)) { err.textContent = '고른 감정마다 강도를 표시해 주세요.'; err.style.display = 'block'; return; }
+    goto('tone');
+  });
+  renderEmotionSelections();
+}
+function renderEmotionSelections() {
+  document.querySelectorAll('.emo-btn').forEach(b => {
+    b.classList.toggle('selected', state.emotions.some(e => e.word === b.textContent));
+    b.disabled = !b.classList.contains('selected') && state.emotions.length >= CONFIG.MAX_EMOTIONS;
+  });
+  document.getElementById('emo-count').textContent = `${state.emotions.length} / ${CONFIG.MAX_EMOTIONS}개 선택`;
+  const list = document.getElementById('intensity-list');
+  list.innerHTML = state.emotions.map(e => `
+    <div class="intensity-row" data-word="${escapeHtml(e.word)}">
+      <div class="word">${escapeHtml(e.word)}</div>
+      <div class="intensity-scale">
+        ${[1, 2, 3, 4, 5].map(v => `<button type="button" class="intensity-btn${e.intensity === v ? ' active' : ''}" data-v="${v}">${v}</button>`).join('')}
+      </div>
+    </div>`).join('');
+  list.querySelectorAll('.intensity-row').forEach(row => {
+    const word = row.dataset.word;
+    row.querySelectorAll('.intensity-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const e = state.emotions.find(e => e.word === word);
+        e.intensity = Number(btn.dataset.v);
+        row.querySelectorAll('.intensity-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+      });
+    });
+  });
+}
+
+/* ---- 3. 색으로 표현하기 (색상환+슬라이더) ---- */
+const WHEEL_SIZE = 220, WHEEL_OUTER = 106, WHEEL_INNER = 72;
+let HUE_RING_CANVAS = null;
+function buildHueRingCanvas() {
+  const cvs = document.createElement('canvas'); cvs.width = WHEEL_SIZE; cvs.height = WHEEL_SIZE;
+  const c = cvs.getContext('2d');
+  const cx = WHEEL_SIZE / 2, cy = WHEEL_SIZE / 2;
+  const img = c.createImageData(WHEEL_SIZE, WHEEL_SIZE);
+  for (let y = 0; y < WHEEL_SIZE; y++) for (let x = 0; x < WHEEL_SIZE; x++) {
+    const dx = x - cx, dy = y - cy, r = Math.hypot(dx, dy);
+    const idx = (y * WHEEL_SIZE + x) * 4;
+    if (r >= WHEEL_INNER && r <= WHEEL_OUTER) {
+      let ang = Math.atan2(dy, dx) * 180 / Math.PI; ang = (ang + 360) % 360;
+      const [rr, gg, bb] = hslToRgb(ang, 1, 0.5);
+      img.data[idx] = rr; img.data[idx + 1] = gg; img.data[idx + 2] = bb; img.data[idx + 3] = 255;
+    } else { img.data[idx + 3] = 0; }
+  }
+  c.putImageData(img, 0, 0);
+  return cvs;
+}
+function angleFromPointer(canvas, e) {
+  const rect = canvas.getBoundingClientRect();
+  const cx = rect.width / 2, cy = rect.height / 2;
+  const x = e.clientX - rect.left - cx, y = e.clientY - rect.top - cy;
+  return (Math.atan2(y, x) * 180 / Math.PI + 360) % 360;
+}
+function redrawWheel(canvas) {
+  if (!HUE_RING_CANVAS) HUE_RING_CANVAS = buildHueRingCanvas();
+  const c = canvas.getContext('2d');
+  c.clearRect(0, 0, WHEEL_SIZE, WHEEL_SIZE);
+  c.drawImage(HUE_RING_CANVAS, 0, 0);
+  const cx = WHEEL_SIZE / 2, cy = WHEEL_SIZE / 2, rMid = (WHEEL_OUTER + WHEEL_INNER) / 2;
+  const rad = state.tone.hue * Math.PI / 180;
+  const mx = cx + Math.cos(rad) * rMid, my = cy + Math.sin(rad) * rMid;
+  c.beginPath(); c.arc(mx, my, 7, 0, Math.PI * 2); c.fillStyle = '#fff'; c.fill();
+  c.lineWidth = 2; c.strokeStyle = '#20232A'; c.stroke();
+}
+function updateToneSwatch() {
+  const swatch = document.getElementById('tone-swatch'), hexEl = document.getElementById('tone-hex');
+  const hex = toneBaseColorHex();
+  if (swatch) swatch.style.background = hex;
+  if (hexEl) hexEl.textContent = `${hex} · ${hueName(state.tone.hue)} 계열`;
+}
+function bindToneSlider(id, key) {
+  const el = document.getElementById(id);
+  el.addEventListener('input', () => { state.tone[key] = Number(el.value); updateToneSwatch(); });
+}
+function renderToneStep() {
+  if (!state.tone) state.tone = { hue: Math.random() * 360, brightness: 50, saturation: 50, spacing: 50 };
+  stageEl.innerHTML = `
+    <div class="card wide">
+      <p class="eyebrow">활동 3 · 나의 진로마음을 색으로 표현하기</p>
+      <h1>지금 마음에 가까운 색을 골라보세요</h1>
+      <p class="lead">색상환을 드래그해 색을 고르고, 슬라이더로 밝기·선명함·여백의 느낌을 조절해 보세요. "불안은 검은색"처럼 정해진 답은 없어요 — 지금 여러분에게 이 마음이 어떤 색으로 느껴지는지가 중요해요.</p>
+      <div class="tone-layout">
+        <div class="wheel-wrap">
+          <canvas id="hue-wheel" width="${WHEEL_SIZE}" height="${WHEEL_SIZE}"></canvas>
+          <div class="wheel-swatch" id="tone-swatch"></div>
+        </div>
+        <div class="tone-sliders">
+          <div class="slider-field"><div class="row-label"><span>어두운</span><span>밝은</span></div><input type="range" id="t-bright" min="0" max="100" value="${state.tone.brightness}" /></div>
+          <div class="slider-field"><div class="row-label"><span>차분한</span><span>강렬한</span></div><input type="range" id="t-sat" min="0" max="100" value="${state.tone.saturation}" /></div>
+          <div class="slider-field"><div class="row-label"><span>답답한</span><span>여유로운</span></div><input type="range" id="t-spacing" min="0" max="100" value="${state.tone.spacing}" /></div>
+          <div class="tone-hex" id="tone-hex"></div>
+        </div>
+      </div>
+      <div class="actions-footer">
+        <button class="btn btn-ghost" id="back-btn">← 이전</button>
+        <button class="btn btn-primary" id="next-btn">다음: 형태로 표현하기 →</button>
+      </div>
+    </div>`;
+  const wheelEl = document.getElementById('hue-wheel');
+  redrawWheel(wheelEl); updateToneSwatch();
+  let dragging = false;
+  wheelEl.addEventListener('pointerdown', e => { dragging = true; state.tone.hue = angleFromPointer(wheelEl, e); redrawWheel(wheelEl); updateToneSwatch(); });
+  window.addEventListener('pointermove', e => { if (!dragging) return; state.tone.hue = angleFromPointer(wheelEl, e); redrawWheel(wheelEl); updateToneSwatch(); });
+  window.addEventListener('pointerup', () => { dragging = false; });
+  bindToneSlider('t-bright', 'brightness'); bindToneSlider('t-sat', 'saturation'); bindToneSlider('t-spacing', 'spacing');
+  document.getElementById('back-btn').addEventListener('click', () => goto('emotion'));
+  document.getElementById('next-btn').addEventListener('click', () => {
+    const spacingFactor = state.tone.spacing / 100;
+    state.canvasDefaults = { size: Math.round(190 - spacingFactor * 100), jitter: Math.round(20 + spacingFactor * 90) };
+    state.currentColor = toneBaseColorHex();
+    goto('canvas');
+  });
+}
+
+/* ---- 3-2. 형태 배치 ---- */
+const SHAPE_ICONS = {
+  ellipse: '<svg width="22" height="22" viewBox="0 0 22 22"><ellipse cx="11" cy="11" rx="9" ry="6.5" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>',
+  angular: '<svg width="22" height="22" viewBox="0 0 22 22"><polygon points="11,2 19,8 16,20 6,20 3,8" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>',
+  blob: '<svg width="22" height="22" viewBox="0 0 22 22"><path d="M11 2 C16 2 20 6 19 11 C18 16 15 20 10 19 C5 18 2 14 3 9 C4 4 7 2 11 2 Z" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>',
+};
+const SHAPE_LABELS = { ellipse: '원 / 타원', angular: '각진 형태', blob: '자유 형태' };
+function renderCanvasStep() {
+  stageEl.innerHTML = `
+    <div class="card wide">
+      <p class="eyebrow">활동 3 · 나의 진로마음을 색으로 표현하기</p>
+      <h1>형태를 자유롭게 배치해 마음을 표현해 보세요</h1>
+      <p class="lead">형태를 추가한 뒤 드래그해서 옮기고, 클릭하면 오른쪽에서 크기·회전·투명도·색을 바꿀 수 있어요. 그림 실력은 전혀 상관없습니다.</p>
+      <div class="workspace">
+        <div class="stage-wrap">
+          <div class="canvas-frame"><canvas id="paint-canvas" width="${CS}" height="${CS}"></canvas></div>
+          <div class="canvas-caption">형태를 클릭 후 드래그하면 위치를 옮길 수 있어요.</div>
+        </div>
+        <div class="rail">
+          <div class="rail-card"><p class="rail-title">색상</p>
+            <div class="color-row"><input type="color" id="color-input" value="${state.currentColor}" /><span class="color-hex" id="color-hex">${state.currentColor}</span></div>
+          </div>
+          <div class="rail-card"><p class="rail-title">형태 추가</p>
+            <div class="shape-btn-grid">
+              <button class="shape-btn" data-type="ellipse">${SHAPE_ICONS.ellipse}${SHAPE_LABELS.ellipse}</button>
+              <button class="shape-btn" data-type="angular">${SHAPE_ICONS.angular}${SHAPE_LABELS.angular}</button>
+              <button class="shape-btn" data-type="blob">${SHAPE_ICONS.blob}${SHAPE_LABELS.blob}</button>
+            </div>
+          </div>
+          <div class="rail-card" id="props-card"><p class="rail-title">선택한 형태</p><div id="props-body"></div></div>
+          <div class="btn-row"><button class="btn btn-small" id="undo-btn">실행 취소</button><button class="btn btn-small" id="delete-btn">삭제</button></div>
+        </div>
+      </div>
+      <div class="actions-footer">
+        <button class="btn btn-ghost" id="back-btn">← 이전</button>
+        <button class="btn btn-primary" id="next-btn">다음: AI 이미지 만들기 →</button>
+      </div>
+    </div>`;
+  const canvasEl = document.getElementById('paint-canvas');
+  ctx = canvasEl.getContext('2d');
+  document.getElementById('color-input').addEventListener('input', e => {
+    state.currentColor = e.target.value;
+    document.getElementById('color-hex').textContent = e.target.value;
+    if (state.selectedId != null) { const s = state.shapes.find(s => s.id === state.selectedId); if (s) s.colorHex = e.target.value; }
+    renderCanvas();
+  });
+  stageEl.querySelectorAll('.shape-btn').forEach(btn => btn.addEventListener('click', () => addShape(btn.dataset.type)));
+  document.getElementById('undo-btn').addEventListener('click', undo);
+  document.getElementById('delete-btn').addEventListener('click', deleteSelected);
+  document.getElementById('back-btn').addEventListener('click', () => goto('tone'));
+  document.getElementById('next-btn').addEventListener('click', () => {
+    if (state.shapes.length === 0) { alert('형태를 하나 이상 추가한 뒤 진행해 주세요.'); return; }
+    goto('ai');
+  });
+  let dragging = null, offsetX = 0, offsetY = 0;
+  function pointFromEvent(e) { const rect = canvasEl.getBoundingClientRect(); return { x: e.clientX - rect.left, y: e.clientY - rect.top }; }
+  canvasEl.addEventListener('pointerdown', e => {
+    const p = pointFromEvent(e); const hit = hitTest(p.x, p.y);
+    if (hit) {
+      pushHistory(); state.selectedId = hit.id; dragging = hit; offsetX = p.x - hit.x; offsetY = p.y - hit.y;
+      document.getElementById('color-input').value = hit.colorHex;
+      document.getElementById('color-hex').textContent = hit.colorHex;
+    } else { state.selectedId = null; }
+    refreshCanvasUI();
+  });
+  window.addEventListener('pointermove', e => { if (!dragging) return; const p = pointFromEvent(e); dragging.x = p.x - offsetX; dragging.y = p.y - offsetY; renderCanvas(); });
+  window.addEventListener('pointerup', () => { dragging = null; });
+  canvasKeyHandler = e => { if ((e.key === 'Delete' || e.key === 'Backspace') && state.selectedId != null) { e.preventDefault(); deleteSelected(); } };
+  window.addEventListener('keydown', canvasKeyHandler);
+  renderCanvas(); renderPropsPanel(); updateUndoDeleteState();
+}
+function updateUndoDeleteState() {
+  const undoBtn = document.getElementById('undo-btn'), delBtn = document.getElementById('delete-btn');
+  if (undoBtn) undoBtn.disabled = state.historyStack.length === 0;
+  if (delBtn) delBtn.disabled = state.selectedId == null;
+}
+function renderPropsPanel() {
+  const body = document.getElementById('props-body'); if (!body) return;
+  const shape = state.shapes.find(s => s.id === state.selectedId);
+  if (!shape) { body.innerHTML = `<div class="selected-empty">형태를 클릭하면 속성을 조절할 수 있어요.</div>`; return; }
+  body.innerHTML = `
+    <div class="selected-meta">${SHAPE_LABELS[shape.type]} · #${shape.order}</div>
+    <div class="slider-field"><div class="row-label"><span>너비</span><span>${Math.round(shape.width)}</span></div><input type="range" id="s-width" min="20" max="480" value="${shape.width}" /></div>
+    <div class="slider-field"><div class="row-label"><span>높이</span><span>${Math.round(shape.height)}</span></div><input type="range" id="s-height" min="20" max="480" value="${shape.height}" /></div>
+    <div class="slider-field"><div class="row-label"><span>회전</span><span>${Math.round(shape.rotation)}°</span></div><input type="range" id="s-rot" min="0" max="359" value="${shape.rotation}" /></div>
+    <div class="slider-field"><div class="row-label"><span>투명도</span><span>${Math.round(shape.opacity * 100)}%</span></div><input type="range" id="s-op" min="10" max="100" value="${Math.round(shape.opacity * 100)}" /></div>`;
+  function bindSlider(id, onInput) { document.getElementById(id).addEventListener('input', e => { onInput(Number(e.target.value)); renderCanvas(); renderPropsPanel(); }); }
+  bindSlider('s-width', v => shape.width = v);
+  bindSlider('s-height', v => shape.height = v);
+  bindSlider('s-rot', v => shape.rotation = v);
+  bindSlider('s-op', v => shape.opacity = v / 100);
+}
+function refreshCanvasUI() { renderCanvas(); renderPropsPanel(); updateUndoDeleteState(); }
+
+/* ---- 4. AI 이미지 생성 ---- */
+const AI_ENDPOINT = 'https://206-189-235-56.sslip.io/api/career-image';
+
+function renderAiStep() {
+  stageEl.innerHTML = `
+    <div class="card">
+      <p class="eyebrow">활동 4 · AI로 나의 진로정서 이미지 만들기</p>
+      <h1>AI가 이미지를 다듬고 있어요</h1>
+      <div class="ai-loading" id="ai-loading">
+        <div class="ai-spinner"></div>
+        <p class="lead" style="margin:0;">잠시만 기다려 주세요 (최대 30초 정도 걸릴 수 있어요)...</p>
+      </div>
+    </div>`;
+  const exportCanvas = document.createElement('canvas');
+  exportCanvas.width = CS; exportCanvas.height = CS;
+  renderShapesOnly(exportCanvas.getContext('2d'));
+  const canvasDataUrl = exportCanvas.toDataURL('image/png');
+  state.aiImageDataUrl = canvasDataUrl; // AI 연결 실패 시 이 그림을 그대로 씀
+
+  const emotionWords = state.emotions.map(e => e.word);
+  const colorHex = toneBaseColorHex();
+
+  fetch(AI_ENDPOINT, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ canvasImage: canvasDataUrl, emotionWords, colorHex }),
+  })
+    .then(r => (r.ok ? r.json() : Promise.reject(new Error('server error'))))
+    .then(data => {
+      if (data.imageUrl) state.aiImageDataUrl = data.imageUrl;
+      showAiResult(true);
+    })
+    .catch(err => {
+      console.error('AI 이미지 생성 실패, 캔버스 그림으로 대체합니다.', err);
+      showAiResult(false);
+    });
+}
+
+function showAiResult(aiSucceeded) {
+  stageEl.innerHTML = `
+    <div class="card">
+      <p class="eyebrow">활동 4 · AI로 나의 진로정서 이미지 만들기</p>
+      <h1>이미지가 완성되었어요</h1>
+      <div class="ai-thumb"><img src="${state.aiImageDataUrl}" alt="완성된 이미지" /></div>
+      ${aiSucceeded ? '' : '<div class="ai-note">🔧 지금은 AI 서버에 연결하지 못해서, 방금 직접 만든 그림을 그대로 보여드려요.</div>'}
+      <div class="actions-footer">
+        <button class="btn btn-ghost" id="back-btn">← 이전</button>
+        <button class="btn btn-primary" id="next-btn">다음: 의미 붙이기 →</button>
+      </div>
+    </div>`;
+  document.getElementById('back-btn').addEventListener('click', () => goto('canvas'));
+  document.getElementById('next-btn').addEventListener('click', () => goto('meaning'));
+}
+
+/* ---- 5. 의미 붙이기 ---- */
+function renderMeaningStep() {
+  const m = state.meaning;
+  stageEl.innerHTML = `
+    <div class="card">
+      <p class="eyebrow">활동 5 · 이미지에 나의 의미 붙이기</p>
+      <h1>이 이미지에 이름을 붙여볼까요?</h1>
+      <div class="ai-thumb" style="width:200px;height:200px;"><img src="${state.aiImageDataUrl}" alt="나의 이미지" /></div>
+      <div class="field"><label for="m-title">이미지 제목</label><input type="text" id="m-title" value="${escapeHtml(m.title)}" placeholder="예: 안개 속의 길" /></div>
+      <div class="field"><label for="m-awareness">이 이미지를 보면 가장 먼저 어떤 감정이나 느낌이 드나요?</label><textarea id="m-awareness">${escapeHtml(m.awareness)}</textarea></div>
+      <div class="field"><label for="m-expression">색이나 형태, 위치 중 어떤 부분이 지금 내 마음을 가장 잘 보여주나요? 그렇게 느끼는 이유도 적어보세요.</label><textarea id="m-expression">${escapeHtml(m.expression)}</textarea></div>
+      <div class="field"><label for="m-granularity">이 이미지에 담긴 마음을 가능한 자세히 말로 표현해 보세요.</label><textarea id="m-granularity">${escapeHtml(m.granularity)}</textarea></div>
+      <div class="field"><label for="m-meaning">이 마음은 나에게 어떤 의미가 있나요? 오늘 떠올린 진로 장면과 연결해 적어보세요.</label><textarea id="m-meaning">${escapeHtml(m.meaning)}</textarea></div>
+      <div class="field"><label for="m-self">이 이미지가 보여주는 지금의 나는 어떤 모습인가요?</label><textarea id="m-self">${escapeHtml(m.selfNow)}</textarea></div>
+      <div class="error" id="meaning-error" style="display:none;"></div>
+      <div class="actions-footer">
+        <button class="btn btn-ghost" id="back-btn">← 이전</button>
+        <button class="btn btn-primary" id="next-btn">다음 →</button>
+      </div>
+    </div>`;
+  document.getElementById('back-btn').addEventListener('click', () => { saveMeaningFields(); goto('ai'); });
+  document.getElementById('next-btn').addEventListener('click', () => {
+    saveMeaningFields();
+    if (!state.meaning.title) {
+      const err = document.getElementById('meaning-error');
+      err.textContent = '이미지 제목만이라도 적어 주세요.';
+      err.style.display = 'block';
+      return;
+    }
+    goto('worries');
+  });
+}
+function saveMeaningFields() {
+  state.meaning.title = document.getElementById('m-title').value.trim();
+  state.meaning.awareness = document.getElementById('m-awareness').value.trim();
+  state.meaning.expression = document.getElementById('m-expression').value.trim();
+  state.meaning.granularity = document.getElementById('m-granularity').value.trim();
+  state.meaning.meaning = document.getElementById('m-meaning').value.trim();
+  state.meaning.selfNow = document.getElementById('m-self').value.trim();
+}
+
+/* ---- 6. 진로고민 체크리스트 ---- */
+function renderWorriesStep() {
+  stageEl.innerHTML = `
+    <div class="card">
+      <p class="eyebrow">활동 6 · 나의 진로고민 구체화하기</p>
+      <h1>이 마음은 어떤 고민과 연결되어 있을까요?</h1>
+      <p class="lead">아래 여섯 가지 중, 지금 나에게 가장 가깝게 느껴지는 고민을 1~2개 골라 주세요.</p>
+      <div class="worry-list" id="worry-list"></div>
+      <div class="error" id="worry-error" style="display:none;"></div>
+      <div class="actions-footer">
+        <button class="btn btn-ghost" id="back-btn">← 이전</button>
+        <button class="btn btn-primary" id="next-btn">다음 →</button>
+      </div>
+    </div>`;
+  const list = document.getElementById('worry-list');
+  CONFIG.WORRY_CATEGORIES.forEach(cat => {
+    const b = document.createElement('button');
+    b.type = 'button'; b.className = 'worry-card' + (state.worries.includes(cat.id) ? ' selected' : '');
+    b.innerHTML = `<div><div class="label">${escapeHtml(cat.label)}</div><div class="desc">${escapeHtml(cat.desc)}</div></div>`;
+    b.addEventListener('click', () => {
+      const idx = state.worries.indexOf(cat.id);
+      if (idx >= 0) state.worries.splice(idx, 1);
+      else { if (state.worries.length >= CONFIG.MAX_WORRIES) return; state.worries.push(cat.id); }
+      renderWorriesStep();
+    });
+    list.appendChild(b);
+  });
+  document.getElementById('back-btn').addEventListener('click', () => goto('meaning'));
+  document.getElementById('next-btn').addEventListener('click', () => {
+    if (state.worries.length === 0) { const err = document.getElementById('worry-error'); err.textContent = '1개 이상 골라 주세요.'; err.style.display = 'block'; return; }
+    goto('profile');
+  });
+}
+
+/* ---- 7. 진로정서 프로파일(포트폴리오) ---- */
+function renderProfileStep() {
+  const worryLabels = state.worries.map(id => CONFIG.WORRY_CATEGORIES.find(c => c.id === id).label).join(', ');
+  stageEl.innerHTML = `
+    <div class="card">
+      <p class="eyebrow">활동 7 · 지금 나의 진로정서 프로파일 만들기</p>
+      <h1>오늘의 활동을 한 장으로 정리해요</h1>
+      <div class="field"><label for="p-linked">이 고민과 연결된 감정</label><input type="text" id="p-linked" value="${escapeHtml(state.profile.linkedEmotion)}" /></div>
+      <div class="field"><label for="p-self">지금의 나를 한 문장으로 표현하면</label><textarea id="p-self" placeholder="예: 나는 진로를 결정해야 한다는 생각은 있지만 어떤 방향이 나에게 맞는지 몰라 막막하다.">${escapeHtml(state.profile.oneLineSelf)}</textarea></div>
+      <div class="profile-box" id="profile-preview">
+        <div class="profile-row"><div class="k">진로장면</div><div class="v">${escapeHtml(state.scene)}</div></div>
+        <div class="profile-row"><div class="k">현재 가장 큰 감정</div><div class="v">${state.emotions.map(e => escapeHtml(e.word) + '(' + e.intensity + ')').join(', ')}</div></div>
+        <div class="profile-row"><div class="k">나의 색</div><div class="v" style="display:flex;align-items:center;gap:10px;"><span class="thumb-inline"><img src="${state.aiImageDataUrl}" /></span>${escapeHtml(toneBaseColorHex())}</div></div>
+        <div class="profile-row"><div class="k">이미지 제목</div><div class="v">${escapeHtml(state.meaning.title)}</div></div>
+        <div class="profile-row"><div class="k">주요 진로고민</div><div class="v">${escapeHtml(worryLabels)}</div></div>
+      </div>
+      <div class="error" id="profile-error" style="display:none;"></div>
+      <div class="actions-footer">
+        <button class="btn btn-ghost" id="back-btn">← 이전</button>
+        <button class="btn btn-primary" id="next-btn">다음 →</button>
+      </div>
+    </div>`;
+  document.getElementById('back-btn').addEventListener('click', () => { saveProfileFields(); goto('worries'); });
+  document.getElementById('next-btn').addEventListener('click', () => {
+    saveProfileFields();
+    if (!state.profile.oneLineSelf) { const err = document.getElementById('profile-error'); err.textContent = '한 문장으로 표현해 주세요.'; err.style.display = 'block'; return; }
+    goto('share');
+  });
+}
+function saveProfileFields() {
+  state.profile.linkedEmotion = document.getElementById('p-linked').value.trim();
+  state.profile.oneLineSelf = document.getElementById('p-self').value.trim();
+}
+
+/* ---- 8. 소그룹 공유 안내 ---- */
+function renderShareStep() {
+  const worryLabels = state.worries.map(id => CONFIG.WORRY_CATEGORIES.find(c => c.id === id).label);
+  const groupLine = worryLabels.length
+    ? `오늘 고른 고민(${worryLabels.join(', ')})이 비슷한 친구를 찾아 소그룹을 만들어 볼 수 있어요. 비슷한 고민을 가진 친구의 이야기를 들으면 "나만 그런 게 아니구나"라는 마음이 들기도 해요.`
+    : `오늘 고른 고민이 비슷한 친구를 찾아 소그룹을 만들어 볼 수 있어요.`;
+  stageEl.innerHTML = `
+    <div class="card">
+      <p class="eyebrow">활동 8 · 소그룹 공유</p>
+      <h1>옆 친구와 나눠볼까요?</h1>
+      <div class="info-block">
+        <p>이미지, 제목, 오늘 느낀 감정, 진로고민 중에서 <b>내가 나누고 싶은 만큼만</b> 나누면 돼요.</p>
+        <p>${groupLine}</p>
+        <p>친구의 이야기를 들을 땐 평가하거나 해결책을 주기보다, "그럴 수도 있겠다"처럼 공감해 주세요.</p>
+      </div>
+      <div class="actions-footer">
+        <button class="btn btn-ghost" id="back-btn">← 이전</button>
+        <button class="btn btn-primary" id="next-btn">마치기 →</button>
+      </div>
+    </div>`;
+  document.getElementById('back-btn').addEventListener('click', () => goto('profile'));
+  document.getElementById('next-btn').addEventListener('click', () => goto('done'));
+}
+
+/* ---- 완료: 포트폴리오 저장 ---- */
+function buildPortfolioText() {
+  const worryLabels = state.worries.map(id => CONFIG.WORRY_CATEGORIES.find(c => c.id === id).label).join(', ');
+  return [
+    '지금 나의 진로마음 (1차시 포트폴리오)',
+    '',
+    `내가 떠올린 진로장면: ${state.scene}`,
+    `현재 가장 큰 감정과 강도: ${state.emotions.map(e => `${e.word}(${e.intensity})`).join(', ')}`,
+    `나의 감정을 표현한 색: ${toneBaseColorHex()} (${hueName(state.tone.hue)} 계열)`,
+    `이미지 제목: ${state.meaning.title}`,
+    `이 이미지를 보면 가장 먼저 드는 감정: ${state.meaning.awareness}`,
+    `지금 내 마음을 가장 잘 보여주는 부분과 이유: ${state.meaning.expression}`,
+    `이미지에 담긴 마음(자세히): ${state.meaning.granularity}`,
+    `이 마음의 의미(진로장면과 연결): ${state.meaning.meaning}`,
+    `이 이미지가 보여주는 지금의 나: ${state.meaning.selfNow}`,
+    `나의 가장 큰 진로고민: ${worryLabels}`,
+    `이 고민과 연결된 감정: ${state.profile.linkedEmotion}`,
+    `지금의 나를 한 문장으로 표현하면: ${state.profile.oneLineSelf}`,
+  ].join('\n');
+}
+function dataUrlToBlob(dataUrl) {
+  const [meta, b64] = dataUrl.split(',');
+  const mime = meta.match(/:(.*?);/)[1];
+  const bin = atob(b64);
+  const arr = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
+  return new Blob([arr], { type: mime });
+}
+function anchorDownload(filename, blobOrUrl) {
+  const isBlob = blobOrUrl instanceof Blob;
+  const url = isBlob ? URL.createObjectURL(blobOrUrl) : blobOrUrl;
+  const a = document.createElement('a'); a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  if (isBlob) setTimeout(() => URL.revokeObjectURL(url), 2000);
+}
+async function saveViaCapability(filename, data) {
+  if (!window.claude || typeof window.claude.use !== 'function') return false;
+  let downloads;
+  try { downloads = await window.claude.use('downloads'); } catch (e) { return false; }
+  if (!downloads) return false;
+  try { await downloads.save({ filename, data }); } catch (e) { /* declined or rate-limited: user already saw a prompt, don't fall back */ }
+  return true;
+}
+async function downloadText(filename, content) {
+  const handled = await saveViaCapability(filename, content);
+  if (!handled) anchorDownload(filename, new Blob([content], { type: 'text/plain;charset=utf-8' }));
+}
+async function downloadDataUrl(filename, srcUrl) {
+  let blob;
+  if (srcUrl.startsWith('data:')) {
+    blob = dataUrlToBlob(srcUrl);
+  } else {
+    try {
+      const resp = await fetch(srcUrl);
+      blob = await resp.blob();
+    } catch (e) {
+      window.open(srcUrl, '_blank'); // 못 받아오면 새 탭에서 열어서 수동 저장하도록
+      return;
+    }
+  }
+  const handled = await saveViaCapability(filename, blob);
+  if (!handled) anchorDownload(filename, blob);
+}
+function renderDoneStep() {
+  stageEl.innerHTML = `
+    <div class="card">
+      <p class="eyebrow">1차시 완료</p>
+      <h1>수고하셨습니다</h1>
+      <p class="lead">"내가 어떤 마음인지 알고, 그 마음이 어떤 진로고민과 연결되어 있는지 알아보았어요." 오늘 만든 이미지와 기록은 나만 보관하며, 다음 시간(2차시)에 다시 사용해요.</p>
+      <div class="ai-thumb" style="width:220px;height:220px;"><img src="${state.aiImageDataUrl}" /></div>
+      <div class="btn-row">
+        <button class="btn btn-small" id="dl-png">이미지 저장</button>
+        <button class="btn btn-small" id="dl-txt">포트폴리오 저장(.txt)</button>
+      </div>
+    </div>`;
+  document.getElementById('dl-png').addEventListener('click', () => downloadDataUrl('나의진로마음_1차시.png', state.aiImageDataUrl));
+  document.getElementById('dl-txt').addEventListener('click', () => downloadText('나의진로마음_1차시.txt', buildPortfolioText()));
+}
+
+render();
+</script>
