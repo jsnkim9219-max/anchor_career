@@ -1052,9 +1052,23 @@ async function saveViaCapability(filename, data) {
   try { await downloads.save({ filename, data }); } catch (e) { /* declined or rate-limited: user already saw a prompt, don't fall back */ }
   return true;
 }
+async function shareFile(filename, blob, mimeType) {
+  if (!navigator.canShare || !navigator.share) return false;
+  try {
+    const file = new File([blob], filename, { type: mimeType || blob.type || 'application/octet-stream' });
+    if (!navigator.canShare({ files: [file] })) return false;
+    await navigator.share({ files: [file] });
+    return true;
+  } catch (e) {
+    return true;
+  }
+}
 async function downloadText(filename, content) {
   const handled = await saveViaCapability(filename, content);
-  if (!handled) anchorDownload(filename, new Blob([content], { type: 'text/plain;charset=utf-8' }));
+  if (handled) return;
+  const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+  if (await shareFile(filename, blob, 'text/plain')) return;
+  anchorDownload(filename, blob);
 }
 async function downloadDataUrl(filename, srcUrl) {
   let blob;
@@ -1070,7 +1084,9 @@ async function downloadDataUrl(filename, srcUrl) {
     }
   }
   const handled = await saveViaCapability(filename, blob);
-  if (!handled) anchorDownload(filename, blob);
+  if (handled) return;
+  if (await shareFile(filename, blob, 'image/png')) return;
+  anchorDownload(filename, blob);
 }
 function renderDoneStep() {
   stageEl.innerHTML = `

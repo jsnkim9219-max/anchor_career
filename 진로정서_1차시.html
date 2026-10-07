@@ -960,9 +960,26 @@ async function saveViaCapability(filename, data) {
   try { await downloads.save({ filename, data }); } catch (e) { /* declined or rate-limited: user already saw a prompt, don't fall back */ }
   return true;
 }
+// 모바일(특히 아이폰)에서는 <a download>로 눌러도 사진 앱/파일에 바로 저장되지 않는 경우가 많아서,
+// 가능하면 네이티브 "공유하기" 창(사진에 저장 옵션 포함)을 먼저 띄웁니다. 데스크톱은 보통 이 API를
+// 지원하지 않아 자동으로 기존 다운로드 방식으로 넘어갑니다.
+async function shareFile(filename, blob, mimeType) {
+  if (!navigator.canShare || !navigator.share) return false;
+  try {
+    const file = new File([blob], filename, { type: mimeType || blob.type || 'application/octet-stream' });
+    if (!navigator.canShare({ files: [file] })) return false;
+    await navigator.share({ files: [file] });
+    return true;
+  } catch (e) {
+    return true; // 사용자가 공유창에서 취소한 경우도 포함 — 아래 다운로드 방식으로 또 띄우지 않음
+  }
+}
 async function downloadText(filename, content) {
   const handled = await saveViaCapability(filename, content);
-  if (!handled) anchorDownload(filename, new Blob([content], { type: 'text/plain;charset=utf-8' }));
+  if (handled) return;
+  const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+  if (await shareFile(filename, blob, 'text/plain')) return;
+  anchorDownload(filename, blob);
 }
 async function downloadDataUrl(filename, srcUrl) {
   let blob;
@@ -978,7 +995,9 @@ async function downloadDataUrl(filename, srcUrl) {
     }
   }
   const handled = await saveViaCapability(filename, blob);
-  if (!handled) anchorDownload(filename, blob);
+  if (handled) return;
+  if (await shareFile(filename, blob, 'image/png')) return;
+  anchorDownload(filename, blob);
 }
 function renderDoneStep() {
   stageEl.innerHTML = `
